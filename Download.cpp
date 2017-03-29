@@ -14,10 +14,10 @@
 #include <QFileInfo>
 #include <QDir>
 
-Download::Download(int index, QObject *parent)
+Download::Download(int code, QObject *parent)
     :QObject(parent)
 {
-    m_index = index;
+    m_code = code;
     m_netManager = new QNetworkAccessManager(this);
 }
 
@@ -31,14 +31,14 @@ void Download::startDownload(const QString url, QString saveFile, qint64 statPos
     if(m_status == DownloadStatus::Downloading)
     {
           errorInfo = tr("is downloading a file!");
-          emit downloadError(m_index, errorInfo);
+          emit downloadError(m_code, errorInfo);
           return;
     }
 
     if(!m_netManager)
     {
         errorInfo = tr("Network manager object is NULL!");
-        emit downloadError(m_index, errorInfo);
+        emit downloadError(m_code, errorInfo);
         return;
     }
 
@@ -52,14 +52,14 @@ void Download::startDownload(const QString url, QString saveFile, qint64 statPos
     if(!saveFileInfo.absoluteDir().exists())
     {
         errorInfo = QString("The path[%1] not is exist!").arg(m_saveFileNames);
-        emit downloadError(m_index,errorInfo);
+        emit downloadError(m_code,errorInfo);
         return;
     }
     m_saveFile.setFileName(saveFileInfo.absoluteFilePath());
     if(!m_saveFile.open(QIODevice::WriteOnly))
     {
         errorInfo = QString("The file to be saved was opened fail! File name is:%1").arg(saveFileInfo.fileName());
-        emit downloadError(m_index,errorInfo);
+        emit downloadError(m_code,errorInfo);
         return;
     }
 
@@ -76,14 +76,14 @@ void Download::startDownload(const QString url, QString saveFile, qint64 statPos
     m_status = DownloadStatus::Downloading;
 }
 
-void Download::setIndex(int index)
+void Download::setCode(int code)
 {
-    m_index = index;
+    m_code = code;
 }
 
-int Download::index() const
+int Download::code() const
 {
-    return m_index;
+    return m_code;
 }
 
 Download::DownloadStatus Download::status() const
@@ -96,7 +96,7 @@ void Download::stop()
     if(m_status != DownloadStatus::Downloading)
     {
         errorInfo = "is not downloading";
-        emit downloadError(m_index, errorInfo);
+        emit downloadError(m_code, errorInfo);
         return;
     }
 
@@ -122,7 +122,7 @@ void Download::restart()
     if(m_status != DownloadStatus::Stoped)
     {
         errorInfo = "is not stoped!";
-        emit downloadError(m_index, errorInfo);
+        emit downloadError(m_code, errorInfo);
         return;
     }
     m_saveFile.seek(m_startPos);
@@ -136,7 +136,7 @@ void Download::errorSlot(QNetworkReply::NetworkError code)
         return;
     }
     errorInfo = QString("QNetworkReply::NetworkError :%1\n%2").arg((int)code).arg(m_reply->errorString());
-    emit downloadError(m_index, errorInfo);
+    emit downloadError(m_code, errorInfo);
 }
 void Download::readRead()
 {
@@ -155,10 +155,10 @@ void Download::finished()
     m_saveFile.close();
     m_reply->deleteLater();
     m_status = DownloadStatus::Finished;
-    emit downloadFinished(m_index);
+    emit downloadFinished(m_code);
 }
 
 void Download::downloadProgress(qint64 val, qint64 total)
 {
-    emit downloadProgressChange(m_index, val, total);
+    emit downloadProgressChange(m_code, val, total);
 }

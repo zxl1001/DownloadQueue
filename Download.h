@@ -26,19 +26,19 @@ public:
     {
         Waiting, Downloading, Finished, Stoped
     };
-    explicit Download(int index, QObject *parent = 0);
+    explicit Download(int code, QObject *parent = 0);
     virtual ~Download();
     void startDownload(const QString url, QString saveFile, qint64 statPos, qint64 endPos, qint64 readySize = 0);
 
-    void setIndex(int index);
-    int index() const;
+    void setCode(int code);
+    int code() const;
 
     DownloadStatus status() const;
 
 signals:
-    void downloadFinished(int index);
-    void downloadError(int index, const QString &downloadError);
-    void downloadProgressChange(int index, qint64 val, qint64 total);
+    void downloadFinished(int code);
+    void downloadError(int code, const QString &downloadError);
+    void downloadProgressChange(int code, qint64 val, qint64 total);
 
 public slots:
     void stop();
@@ -51,7 +51,7 @@ private slots:
     void downloadProgress(qint64, qint64);
 
 private:
-    int m_index;
+    int m_code;
     QString m_url;
     QString   m_saveFileNames;
     QFile     m_saveFile;

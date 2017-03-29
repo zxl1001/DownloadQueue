@@ -82,8 +82,8 @@ bool MainWindow::isExists(int code)
     for(int i=0; i<m_listModel->rowCount(); ++i)
     {
         bool ok = false;
-        int idx = m_listModel->index(i,0).data(ITEM_CODE).toInt(&ok);
-        if(idx == code)
+        int iCode = m_listModel->index(i,0).data(ITEM_CODE).toInt(&ok);
+        if(iCode == code)
         {
             return true;
         }
@@ -91,27 +91,27 @@ bool MainWindow::isExists(int code)
     return false;
 }
 
-void MainWindow::start(int index)
+void MainWindow::start(int code)
 {
-    m_downloadCtrol.startDownload(index);
-    qDebug()<<"启动下载:"<<index<<m_downloadCtrol.queueCount();
+    m_downloadCtrol.startDownload(code);
+    qDebug()<<"启动下载:"<<code<<m_downloadCtrol.queueCount();
 }
 
-void MainWindow::stop(int index)
+void MainWindow::stop(int code)
 {
-    m_downloadCtrol.stopDownload(index);
+    m_downloadCtrol.stopDownload(code);
 }
 
-void MainWindow::removeDown(int index)
+void MainWindow::removeDown(int code)
 {
-    int idx = m_downloadCtrol.remove(index);
-    qDebug()<<"停止下载"<<index<<idx<<m_downloadCtrol.queueCount();
-    if(idx >= 0)
+    int iCode = m_downloadCtrol.remove(code);
+    qDebug()<<"停止下载"<<code<<iCode<<m_downloadCtrol.queueCount();
+    if(iCode >= 0)
     {
         for(int i=0; i<m_listModel->rowCount(); ++i)
         {
-            int idx  = m_listModel->data(m_listModel->index(i,0), ITEM_CODE).toInt();
-            if(idx == index)
+            int iCode  = m_listModel->data(m_listModel->index(i,0), ITEM_CODE).toInt();
+            if(iCode == code)
             {
                 m_listModel->removeRow(i);
             }
@@ -119,7 +119,7 @@ void MainWindow::removeDown(int index)
     }
 }
 
-void MainWindow::progressChange(int index, qint64 val, qint64 total)
+void MainWindow::progressChange(int code, qint64 val, qint64 total)
 {
     if(total == 0)
     {
@@ -127,8 +127,8 @@ void MainWindow::progressChange(int index, qint64 val, qint64 total)
     }
     for(int i=0; i<m_listModel->rowCount(); ++i)
     {
-        int idx = m_listModel->data(m_listModel->index(i,0),ITEM_CODE).toInt();
-        if(idx == index)
+        int iCode = m_listModel->data(m_listModel->index(i,0),ITEM_CODE).toInt();
+        if(iCode == code)
         {
             int proc = val * 100 / total;
             m_listModel->setData(m_listModel->index(i,1),proc);
@@ -137,12 +137,12 @@ void MainWindow::progressChange(int index, qint64 val, qint64 total)
     }
 }
 
-void MainWindow::downloadFinished(int index)
+void MainWindow::downloadFinished(int code)
 {
     for(int i=0; i<m_listModel->rowCount(); ++i)
     {
-        int idx = m_listModel->data(m_listModel->index(i,0),ITEM_CODE).toInt();
-        if(idx == index)
+        int iCode = m_listModel->data(m_listModel->index(i,0),ITEM_CODE).toInt();
+        if(iCode == code)
         {
             m_listModel->setData(m_listModel->index(i,2), QString("Start"));
             m_listModel->setData(m_listModel->index(i,4),QString("Finished!"));
@@ -151,14 +151,14 @@ void MainWindow::downloadFinished(int index)
     }
 }
 
-void MainWindow::downloadError(int index, const QString &err)
+void MainWindow::downloadError(int code, const QString &err)
 {
 //    qDebug()<<"Error: index:"<<index<<" message:"<<err;
 //    QMessageBox::warning(Q_NULLPTR, tr("Warnging"), tr("Downlaod error! Index:%1, msg: %2").arg(index).arg(err));
     for(int i=0; i<m_listModel->rowCount(); ++i)
     {
-        int idx = m_listModel->data(m_listModel->index(i,0),ITEM_CODE).toInt();
-        if(idx == index)
+        int iCode = m_listModel->data(m_listModel->index(i,0),ITEM_CODE).toInt();
+        if(iCode == code)
         {
 //            stop(index);// if it has error the stop download
             m_listModel->setData(m_listModel->index(i,2), "Start", Qt::EditRole);
@@ -170,19 +170,19 @@ void MainWindow::downloadError(int index, const QString &err)
 
 void MainWindow::on_tableView_clicked(const QModelIndex &index)
 {
-    int idx = m_listModel->data(m_listModel->index(index.row(),0),ITEM_CODE).toInt();
+    int iCode = m_listModel->data(m_listModel->index(index.row(),0),ITEM_CODE).toInt();
     if(index.column() == 2)
     {
-        qDebug()<<"Start btn:"<<idx<<index.data(Qt::DisplayRole).toString();
+        qDebug()<<"Start btn:"<<iCode<<index.data(Qt::DisplayRole).toString();
         if(index.data().toString() == "Start")
         {
             m_listModel->setData(index,"Stop",Qt::EditRole);
-            start(idx);
+            start(iCode);
         }
         else
         {
             m_listModel->setData(index, "Start", Qt::EditRole);
-            stop(idx);
+            stop(iCode);
         }
     }
     else if(index.column() == 3)
@@ -193,7 +193,7 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index)
             QMessageBox::warning(Q_NULLPTR, tr("Ｗarning"),tr("Place stop it first!"));
             return;
         }
-        removeDown(idx);
+        removeDown(iCode);
     }
 
 }

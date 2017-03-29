@@ -35,13 +35,13 @@ public:
     bool isExists(int code);
 
 public slots:
-    void start(int index);
-    void stop(int index);
-    void removeDown(int index);
+    void start(int code);
+    void stop(int code);
+    void removeDown(int code);
 
-    void progressChange(int index, qint64 val, qint64 total);
-    void downloadFinished(int index);
-    void downloadError(int index, const QString &err);
+    void progressChange(int code, qint64 val, qint64 total);
+    void downloadFinished(int code);
+    void downloadError(int code, const QString &err);
 private slots:
     void on_tableView_clicked(const QModelIndex &index);
 

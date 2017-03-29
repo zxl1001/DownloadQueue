@@ -24,8 +24,8 @@ public:
     DownloadControl();
     virtual ~DownloadControl();
     const QList<Download *> &queue() const;
-    void startDownload(int index);
-    void stopDownload(int index);
+    void startDownload(int code);
+    void stopDownload(int code);
     /**
      * @ remove one item in download queue
      * @param index: queue code index
