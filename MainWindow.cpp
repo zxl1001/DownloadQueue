@@ -16,6 +16,7 @@
 #include "ButtonDelegate.h"
 #include <QMessageBox>
 
+#define ITEM_CODE Qt::UserRole + 1
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -58,16 +59,16 @@ bool MainWindow::init()
 
 
 
-void MainWindow::addItemToListView(int code)
+void MainWindow::addItemToListView(const DownloadItem &item)
 {
-    if(isExists(code))
+    if(isExists(item.getCode()))
     {
-        qDebug()<<"addItemToListView(int code) element is exists!";
+        qDebug()<<"addItemToListView(int code) element is exists!" << item.getCode();
         return;
     }
     QList<QStandardItem*> list;
-    QStandardItem *item0 = new QStandardItem(QString("2016-08-30_T_19-06-44.651_GMT_%1.m4v").arg(code));
-    item0->setData(code,Qt::UserRole+1);
+    QStandardItem *item0 = new QStandardItem(QString("2016-08-30_T_19-06-44.651_GMT_%1.m4v").arg(item.getCode()));
+    item0->setData(item.getCode(),ITEM_CODE);
     list.append(item0);
     list.append(new QStandardItem("0"));
     list.append(new QStandardItem("Start"));
@@ -81,7 +82,7 @@ bool MainWindow::isExists(int code)
     for(int i=0; i<m_listModel->rowCount(); ++i)
     {
         bool ok = false;
-        int idx = m_listModel->index(i,0).data(Qt::UserRole+1).toInt(&ok);
+        int idx = m_listModel->index(i,0).data(ITEM_CODE).toInt(&ok);
         if(idx == code)
         {
             return true;
@@ -109,7 +110,7 @@ void MainWindow::removeDown(int index)
     {
         for(int i=0; i<m_listModel->rowCount(); ++i)
         {
-            int idx  = m_listModel->data(m_listModel->index(i,0), Qt::UserRole+1).toInt();
+            int idx  = m_listModel->data(m_listModel->index(i,0), ITEM_CODE).toInt();
             if(idx == index)
             {
                 m_listModel->removeRow(i);
@@ -126,7 +127,7 @@ void MainWindow::progressChange(int index, qint64 val, qint64 total)
     }
     for(int i=0; i<m_listModel->rowCount(); ++i)
     {
-        int idx = m_listModel->data(m_listModel->index(i,0),Qt::UserRole+1).toInt();
+        int idx = m_listModel->data(m_listModel->index(i,0),ITEM_CODE).toInt();
         if(idx == index)
         {
             int proc = val * 100 / total;
@@ -140,7 +141,7 @@ void MainWindow::downloadFinished(int index)
 {
     for(int i=0; i<m_listModel->rowCount(); ++i)
     {
-        int idx = m_listModel->data(m_listModel->index(i,0),Qt::UserRole+1).toInt();
+        int idx = m_listModel->data(m_listModel->index(i,0),ITEM_CODE).toInt();
         if(idx == index)
         {
             m_listModel->setData(m_listModel->index(i,2), QString("Start"));
@@ -156,7 +157,7 @@ void MainWindow::downloadError(int index, const QString &err)
 //    QMessageBox::warning(Q_NULLPTR, tr("Warnging"), tr("Downlaod error! Index:%1, msg: %2").arg(index).arg(err));
     for(int i=0; i<m_listModel->rowCount(); ++i)
     {
-        int idx = m_listModel->data(m_listModel->index(i,0),Qt::UserRole+1).toInt();
+        int idx = m_listModel->data(m_listModel->index(i,0),ITEM_CODE).toInt();
         if(idx == index)
         {
 //            stop(index);// if it has error the stop download
@@ -169,7 +170,7 @@ void MainWindow::downloadError(int index, const QString &err)
 
 void MainWindow::on_tableView_clicked(const QModelIndex &index)
 {
-    int idx = m_listModel->data(m_listModel->index(index.row(),0),Qt::UserRole+1).toInt();
+    int idx = m_listModel->data(m_listModel->index(index.row(),0),ITEM_CODE).toInt();
     if(index.column() == 2)
     {
         qDebug()<<"Start btn:"<<idx<<index.data(Qt::DisplayRole).toString();
@@ -199,8 +200,12 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index)
 
 void MainWindow::on_flushBtn_clicked()
 {
-    QVector<int> list = {100,101,102,103,104,105};
-    foreach (auto val, list) {
-        addItemToListView(val);
+    for(int i=0; i<5; ++i)
+    {
+        int code = i + 100;
+        DownloadItem item(code);
+        item.setUrl("http://10.69.143.81/2016-08-30_T_19-06-44.651_GMT.m4v");
+        item.setSaveFileName(QString("/home/zxl/zxl/2016-08-30_T_19-06-44.651_GMT_%1.m4v").arg(code));
+        addItemToListView(item);
     }
 }

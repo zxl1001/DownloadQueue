@@ -18,8 +18,6 @@ class DownloadItem
 {
 public:
     explicit DownloadItem(int idx);
-    int index() const;
-    void setIndex(int index);
 
     QString saveFileName() const;
     void setSaveFileName(const QString &saveFileName);
@@ -27,8 +25,11 @@ public:
     QString getUrl() const;
     void setUrl(const QString &value);
 
+    int getCode() const;
+    void setCode(int code);
+
 private:
-    int m_index;
+    int m_code;
     QString m_saveFileName;
     QString url;
 };

@@ -31,7 +31,7 @@ public:
     ~MainWindow();
 
     bool init();
-    void addItemToListView(int code);
+    void addItemToListView(const DownloadItem &item);
     bool isExists(int code);
 
 public slots:

@@ -14,18 +14,9 @@
 
 DownloadItem::DownloadItem(int idx)
 {
-    m_index = idx;
+    m_code = idx;
 }
 
-int DownloadItem::index() const
-{
-    return m_index;
-}
-
-void DownloadItem::setIndex(int index)
-{
-    m_index = index;
-}
 
 QString DownloadItem::saveFileName() const
 {
@@ -45,4 +36,14 @@ QString DownloadItem::getUrl() const
 void DownloadItem::setUrl(const QString &value)
 {
     url = value;
+}
+
+int DownloadItem::getCode() const
+{
+    return m_code;
+}
+
+void DownloadItem::setCode(int code)
+{
+    m_code = code;
 }
