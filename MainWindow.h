@@ -31,8 +31,8 @@ public:
     ~MainWindow();
 
     bool init();
-    void search();
-    void updateListView();
+    void addItemToListView(const DownloadItem &item);
+    bool isExists(int code);
 
 public slots:
     void start(int index);
@@ -41,8 +41,11 @@ public slots:
 
     void progressChange(int index, qint64 val, qint64 total);
     void downloadFinished(int index);
+    void downloadError(int index, const QString &err);
 private slots:
     void on_tableView_clicked(const QModelIndex &index);
+
+    void on_flushBtn_clicked();
 
 private:
     Ui::MainWindow *ui;

@@ -14,15 +14,36 @@
 
 DownloadItem::DownloadItem(int idx)
 {
-    m_index = idx;
+    m_code = idx;
 }
 
-int DownloadItem::index() const
+
+QString DownloadItem::saveFileName() const
 {
-    return m_index;
+    return m_saveFileName;
 }
 
-void DownloadItem::setIndex(int index)
+void DownloadItem::setSaveFileName(const QString &saveFileName)
 {
-    m_index = index;
+    m_saveFileName = saveFileName;
+}
+
+QString DownloadItem::getUrl() const
+{
+    return url;
+}
+
+void DownloadItem::setUrl(const QString &value)
+{
+    url = value;
+}
+
+int DownloadItem::getCode() const
+{
+    return m_code;
+}
+
+void DownloadItem::setCode(int code)
+{
+    m_code = code;
 }
