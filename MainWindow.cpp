@@ -14,6 +14,7 @@
 #include "ui_MainWindow.h"
 #include "processdelegate.h"
 #include "ButtonDelegate.h"
+#include <QMessageBox>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -25,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         qApp->quit();
     }
-
 }
 
 MainWindow::~MainWindow()
@@ -45,14 +45,15 @@ bool MainWindow::init()
     ui->tableView->setItemDelegateForColumn(1, new ProcessDelegate);
     ui->tableView->setItemDelegateForColumn(2, new ButtonDelegate);
     ui->tableView->setItemDelegateForColumn(3, new ButtonDelegate);
-    ui->tableView->setItemDelegateForColumn(4, new ButtonDelegate);
-    ui->tableView->setColumnWidth(1,250);
+    ui->tableView->setColumnWidth(0,200);
+    ui->tableView->setColumnWidth(1,300);
     ui->tableView->verticalHeader()->hide();
     ui->tableView->horizontalHeader()->setStretchLastSection(true);
     ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     search();
     connect(&m_downloadCtrol, SIGNAL(progressChange(int,qint64,qint64)), this,SLOT(progressChange(int,qint64,qint64)));
     connect(&m_downloadCtrol, SIGNAL(downloadFinished(int)), this,SLOT(downloadFinished(int)));
+    connect(&m_downloadCtrol, SIGNAL(downloadError(int,QString)), this, SLOT(downloadError(int,QString)));
     return true;
 }
 
@@ -87,10 +88,14 @@ void MainWindow::updateListView()
         m_listModel->setItem(i,0, item0);
         m_listModel->setItem(i,1,new QStandardItem("0"));
         m_listModel->setItem(i,2,new QStandardItem("Start"));
-        m_listModel->setItem(i,3,new QStandardItem("Stop"));
-        m_listModel->setItem(i,4,new QStandardItem("Remove"));
-        m_listModel->setItem(i,5,new QStandardItem("Waiting"));
+        m_listModel->setItem(i,3,new QStandardItem("Remove"));
+        m_listModel->setItem(i,4,new QStandardItem("Waiting"));
     }
+}
+
+bool MainWindow::isExists()
+{
+
 }
 
 void MainWindow::start(int index)
@@ -125,6 +130,10 @@ void MainWindow::removeDown(int index)
 
 void MainWindow::progressChange(int index, qint64 val, qint64 total)
 {
+    if(total == 0)
+    {
+        return;
+    }
     for(int i=0; i<m_listModel->rowCount(); ++i)
     {
         int idx = m_listModel->data(m_listModel->index(i,0),Qt::UserRole+1).toInt();
@@ -144,7 +153,25 @@ void MainWindow::downloadFinished(int index)
         int idx = m_listModel->data(m_listModel->index(i,0),Qt::UserRole+1).toInt();
         if(idx == index)
         {
-            m_listModel->setData(m_listModel->index(i,5),QString("Finished!"));
+            m_listModel->setData(m_listModel->index(i,2), QString("Start"));
+            m_listModel->setData(m_listModel->index(i,4),QString("Finished!"));
+            return;
+        }
+    }
+}
+
+void MainWindow::downloadError(int index, const QString &err)
+{
+//    qDebug()<<"Error: index:"<<index<<" message:"<<err;
+//    QMessageBox::warning(Q_NULLPTR, tr("Warnging"), tr("Downlaod error! Index:%1, msg: %2").arg(index).arg(err));
+    for(int i=0; i<m_listModel->rowCount(); ++i)
+    {
+        int idx = m_listModel->data(m_listModel->index(i,0),Qt::UserRole+1).toInt();
+        if(idx == index)
+        {
+//            stop(index);// if it has error the stop download
+            m_listModel->setData(m_listModel->index(i,2), "Start", Qt::EditRole);
+            m_listModel->setData(m_listModel->index(i,4),err);
             return;
         }
     }
@@ -155,18 +182,32 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index)
     int idx = m_listModel->data(m_listModel->index(index.row(),0),Qt::UserRole+1).toInt();
     if(index.column() == 2)
     {
-        qDebug()<<"Start btn:"<<idx;
-        start(idx);
+        qDebug()<<"Start btn:"<<idx<<index.data(Qt::DisplayRole).toString();
+        if(index.data().toString() == "Start")
+        {
+            m_listModel->setData(index,"Stop",Qt::EditRole);
+            start(idx);
+        }
+        else
+        {
+            m_listModel->setData(index, "Start", Qt::EditRole);
+            stop(idx);
+        }
     }
     else if(index.column() == 3)
     {
-        qDebug()<<"stop btn:"<<idx;
-        stop(idx);
-    }
-    else if(index.column() == 4)
-    {
+        QString status = m_listModel->data(m_listModel->index(index.row(), 2),Qt::DisplayRole).toString();
+        if(status != "Start")
+        {
+            QMessageBox::warning(Q_NULLPTR, tr("Ｗarning"),tr("Place stop it first!"));
+            return;
+        }
         removeDown(idx);
-        qDebug()<<"remove btn:"<<idx;
     }
 
+}
+
+void MainWindow::on_flushBtn_clicked()
+{
+    search();
 }

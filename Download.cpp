@@ -131,11 +131,12 @@ void Download::restart()
 
 void Download::errorSlot(QNetworkReply::NetworkError code)
 {
-    if(m_status == DownloadStatus::Downloading)
+    if(m_status != DownloadStatus::Downloading)
     {
         return;
     }
     errorInfo = QString("QNetworkReply::NetworkError :%1\n%2").arg((int)code).arg(m_reply->errorString());
+    emit downloadError(m_index, errorInfo);
 }
 void Download::readRead()
 {
