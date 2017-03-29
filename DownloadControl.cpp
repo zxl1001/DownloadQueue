@@ -57,7 +57,7 @@ void DownloadControl::startDownload(int index)
     Download *item  = new Download(index);
     m_queue.append(item);
     connect(item, SIGNAL(downloadProgressChange(int,qint64,qint64)), this, SIGNAL(progressChange(int,qint64,qint64)));
-    connect(item, SIGNAL(downloadError(int,QString)), this, SLOT(error(int,QString)));
+    connect(item, SIGNAL(downloadError(int,QString)), this, SIGNAL(downloadError(int,QString)));
     connect(item, SIGNAL(downloadFinished(int)), this, SIGNAL(downloadFinished(int)));
     item->startDownload("http://10.69.143.81/2016-08-30_T_19-06-44.651_GMT.m4v", QString("/home/zxl/zxl/2016-08-30_T_19-06-44.651_GMT_%1.m4v").arg(item->index()), 0, -1);
 }
@@ -98,9 +98,4 @@ int DownloadControl::remove(int index)
 int DownloadControl::queueCount()
 {
     return m_queue.count();
-}
-
-void DownloadControl::error(int index, const QString &err)
-{
-    qDebug()<<"Error: index:"<<index<<" message:"<<err;
 }

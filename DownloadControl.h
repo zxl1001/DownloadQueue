@@ -40,8 +40,9 @@ public:
 signals:
     void progressChange(int index, qint64 val, qint64 total);
     void downloadFinished(int index);
+    void downloadError(int index, const QString &err);
 public slots:
-    void error(int index, const QString &err);
+
 private:
     QList<Download *> m_queue;
 
