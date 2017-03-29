@@ -12,7 +12,7 @@
  */
 #ifndef DOWNLOADITEM_H
 #define DOWNLOADITEM_H
-
+#include <QString>
 
 class DownloadItem
 {
@@ -21,8 +21,16 @@ public:
     int index() const;
     void setIndex(int index);
 
+    QString saveFileName() const;
+    void setSaveFileName(const QString &saveFileName);
+
+    QString getUrl() const;
+    void setUrl(const QString &value);
+
 private:
     int m_index;
+    QString m_saveFileName;
+    QString url;
 };
 
 #endif // DOWNLOADITEM_H

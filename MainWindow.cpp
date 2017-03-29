@@ -40,7 +40,7 @@ bool MainWindow::init()
     {
         return false;
     }
-    m_listModel->setHorizontalHeaderLabels(QStringList()<<"FileName"<<"Progress"<<"Start"<<"Stop"<<"Remove"<<"Status");
+    m_listModel->setHorizontalHeaderLabels(QStringList()<<"FileName"<<"Progress"<<"Start"<<"Remove"<<"Status");
     ui->tableView->setModel(m_listModel);
     ui->tableView->setItemDelegateForColumn(1, new ProcessDelegate);
     ui->tableView->setItemDelegateForColumn(2, new ButtonDelegate);
@@ -50,52 +50,44 @@ bool MainWindow::init()
     ui->tableView->verticalHeader()->hide();
     ui->tableView->horizontalHeader()->setStretchLastSection(true);
     ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    search();
     connect(&m_downloadCtrol, SIGNAL(progressChange(int,qint64,qint64)), this,SLOT(progressChange(int,qint64,qint64)));
     connect(&m_downloadCtrol, SIGNAL(downloadFinished(int)), this,SLOT(downloadFinished(int)));
     connect(&m_downloadCtrol, SIGNAL(downloadError(int,QString)), this, SLOT(downloadError(int,QString)));
     return true;
 }
 
-void MainWindow::search()
+
+
+void MainWindow::addItemToListView(int code)
 {
-    for(int i = 0; i < 5; ++i)
+    if(isExists(code))
     {
-        DownloadItem *item  = new DownloadItem(i+100);
-        m_downloadItemList.append(item);
+        qDebug()<<"addItemToListView(int code) element is exists!";
+        return;
     }
-    updateListView();
+    QList<QStandardItem*> list;
+    QStandardItem *item0 = new QStandardItem(QString("2016-08-30_T_19-06-44.651_GMT_%1.m4v").arg(code));
+    item0->setData(code,Qt::UserRole+1);
+    list.append(item0);
+    list.append(new QStandardItem("0"));
+    list.append(new QStandardItem("Start"));
+    list.append(new QStandardItem("Remove"));
+    list.append(new QStandardItem("Waiting"));
+    m_listModel->appendRow(list);
 }
 
-void MainWindow::updateListView()
+bool MainWindow::isExists(int code)
 {
-    m_listModel->removeRows(0, m_listModel->rowCount());
-    for(int i = 0; i < m_downloadItemList.count(); ++i)
+    for(int i=0; i<m_listModel->rowCount(); ++i)
     {
-//        auto *w = m_widgets[i];
-//        QStandardItem *item = new QStandardItem(""start);
-//        m_listModel->appendRow(item);
-//        ui->listView->setIndexWidget(m_listModel->index(i,0),w);
-//        item->setSizeHint(w->size());
-//        connect(w,SIGNAL(start(int)), this, SLOT(start(int)));
-//        connect(w,SIGNAL(stop(int)), this, SLOT(stop(int)));
-//        connect(w,SIGNAL(removeDown(int)), this,SLOT(removeDown(int)));
-//        connect(this,SIGNAL(progressChange(int,qint64,qint64)), w, SLOT(updateProgressBar(int,qint64,qint64)));
-//        connect(this,SIGNAL(downloadFinished(int)), w, SLOT(downloadFinished(int)));
-        int code = m_downloadItemList[i]->index();
-        QStandardItem *item0 = new QStandardItem(QString("2016-08-30_T_19-06-44.651_GMT_%1.m4v").arg(code));
-        item0->setData(code,Qt::UserRole+1);
-        m_listModel->setItem(i,0, item0);
-        m_listModel->setItem(i,1,new QStandardItem("0"));
-        m_listModel->setItem(i,2,new QStandardItem("Start"));
-        m_listModel->setItem(i,3,new QStandardItem("Remove"));
-        m_listModel->setItem(i,4,new QStandardItem("Waiting"));
+        bool ok = false;
+        int idx = m_listModel->index(i,0).data(Qt::UserRole+1).toInt(&ok);
+        if(idx == code)
+        {
+            return true;
+        }
     }
-}
-
-bool MainWindow::isExists()
-{
-
+    return false;
 }
 
 void MainWindow::start(int index)
@@ -115,16 +107,14 @@ void MainWindow::removeDown(int index)
     qDebug()<<"停止下载"<<index<<idx<<m_downloadCtrol.queueCount();
     if(idx >= 0)
     {
-        foreach (auto *item, m_downloadItemList) {
-            if(item->index() == index)
+        for(int i=0; i<m_listModel->rowCount(); ++i)
+        {
+            int idx  = m_listModel->data(m_listModel->index(i,0), Qt::UserRole+1).toInt();
+            if(idx == index)
             {
-                m_downloadItemList.removeOne(item);
-                delete item;
-                item = Q_NULLPTR;
-                break;
+                m_listModel->removeRow(i);
             }
         }
-        updateListView();
     }
 }
 
@@ -209,5 +199,8 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index)
 
 void MainWindow::on_flushBtn_clicked()
 {
-    search();
+    QVector<int> list = {100,101,102,103,104,105};
+    foreach (auto val, list) {
+        addItemToListView(val);
+    }
 }

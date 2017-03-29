@@ -31,9 +31,8 @@ public:
     ~MainWindow();
 
     bool init();
-    void search();
-    void updateListView();
-    bool isExists();
+    void addItemToListView(int code);
+    bool isExists(int code);
 
 public slots:
     void start(int index);

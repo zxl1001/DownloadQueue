@@ -26,3 +26,23 @@ void DownloadItem::setIndex(int index)
 {
     m_index = index;
 }
+
+QString DownloadItem::saveFileName() const
+{
+    return m_saveFileName;
+}
+
+void DownloadItem::setSaveFileName(const QString &saveFileName)
+{
+    m_saveFileName = saveFileName;
+}
+
+QString DownloadItem::getUrl() const
+{
+    return url;
+}
+
+void DownloadItem::setUrl(const QString &value)
+{
+    url = value;
+}
